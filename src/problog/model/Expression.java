@@ -6,9 +6,9 @@ public class Expression {
 	
 	public String predicate;
 	public List<String> terms;
-	public double probability;
+	public Double probability;
 	
-	public Expression(String predicate, List<String> terms, double probability) {
+	public Expression(String predicate, List<String> terms, Double probability) {
 		this.predicate = predicate;
 		this.terms = terms;
 		this.probability = probability;

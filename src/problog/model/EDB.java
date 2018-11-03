@@ -15,14 +15,15 @@ public class EDB {
 	 */
 	public void addFact(Expression exp) {
 		HashMap<List<String>, Double> factList = facts.get(exp.predicate);
-		facts.remove(exp.predicate);
 		if(factList == null) {
 			factList = new HashMap<List<String>, Double>();
 		}
 		if(factList.containsKey(exp.terms)) {
 			Double oldProb = factList.get(exp.terms);
-			Double newProb = oldProb + exp.probability - (oldProb * exp.probability);
-			factList.put(exp.terms, newProb);
+			if(!oldProb.equals(exp.probability)) {
+				Double newProb = oldProb + exp.probability - (oldProb * exp.probability);
+				factList.put(exp.terms, newProb);
+			}
 		} else {
 			factList.put(exp.terms, exp.probability);
 		}
