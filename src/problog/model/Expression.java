@@ -13,5 +13,4 @@ public class Expression {
 		this.terms = terms;
 		this.probability = probability;
 	}
-	
 }

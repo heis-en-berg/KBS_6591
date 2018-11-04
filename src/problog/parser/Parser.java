@@ -1,34 +1,66 @@
 package problog.parser;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Scanner;
 
-import problog.model.EDB;
+import problog.model.DB;
 import problog.model.Expression;
 
 public class Parser {
+    public static DB db;
+    public Parser(){
+        db = new DB();
+        readFile();
+    }
+    public void readFile() {
 
-//	public static void main(String[] args) 
-//	{ 
-//		EDB edb = new EDB();
-//		
-//		List<String> list1 = new ArrayList<String>();
-//		list1.add("a");
-//		list1.add("b");
-//		Expression exp1 = new Expression("p", list1, 0.2);
-//		
-//		List<String> list2 = new ArrayList<String>();
-//		list2.add("a");
-//		list2.add("b");
-//		Expression exp2 = new Expression("p", list2, 0.3);
-//		
-//		edb.addFact(exp1);
-//		edb.addFact(exp2);
-//		HashMap<List<String>, Double > set = edb.facts.get("p");
-//		System.out.println(set);
-//	} 
-	
+        /* Read Facts from file.*/
+        Scanner consoleScanner = new Scanner(System.in);
+        System.out.print("Enter file path: ");
+        String filePath = consoleScanner.nextLine();
+        consoleScanner.close();
+        File file = new File(filePath);
+
+        try{
+            Scanner lineScanner = new Scanner(file);
+            while(lineScanner.hasNextLine()){
+                String fact = lineScanner.nextLine();
+
+                /* Remove unnecessary whitespaces. */
+                fact = fact.replaceAll(" ","");
+
+                /* Retrieve fact predicate name. */
+                String[] splitFact = fact.split("\\(");
+                String predicate = splitFact[0];
+
+                /* Retrieve fact probability. */
+                String[] splitFactProb = fact.split(":");
+                String probability = splitFactProb[1];
+                Double prob = Double.parseDouble(probability);
+
+                /* Retrieve fact terms as a List. */
+                String atoms = splitFact[1];
+                String[] splitAtoms = atoms.split("\\)");
+                List<String> listOfTerms = new ArrayList<>();
+                atoms = splitAtoms[0];
+                String[] addAtoms = atoms.split(",");
+                for(String y: addAtoms){
+                    listOfTerms.add(y);
+                }
+
+                /* Add the given fact in db. */
+                Expression expression = new Expression(predicate,listOfTerms,prob);
+                db.edb.addFact(expression);
+                HashMap<List<String>, Double > set = db.edb.facts.get("edge");
+                System.out.println(set);
+            }
+        }
+        catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+    }
 }

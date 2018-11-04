@@ -28,6 +28,7 @@ public class EDB {
 			factList.put(exp.terms, exp.probability);
 		}
 		facts.put(exp.predicate, factList);
+
 	}
-	
+
 }
