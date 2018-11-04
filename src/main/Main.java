@@ -7,6 +7,5 @@ public class Main {
     public  static  void main(String[] args){
         Parser parser = new Parser();
         DB db = parser.db;
-        System.out.print("hi");
     }
 }
