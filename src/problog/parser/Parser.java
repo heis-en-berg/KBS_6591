@@ -55,8 +55,6 @@ public class Parser {
                 /* Add the given fact in db. */
                 Expression expression = new Expression(predicate,listOfTerms,prob);
                 db.edb.addFact(expression);
-                HashMap<List<String>, Double > set = db.edb.facts.get("edge");
-                System.out.println(set);
             }
         }
         catch (FileNotFoundException e){
