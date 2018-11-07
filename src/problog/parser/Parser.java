@@ -3,7 +3,6 @@ package problog.parser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -30,7 +29,7 @@ public class Parser {
             while(lineScanner.hasNextLine()){
                 String fact = lineScanner.nextLine();
 
-                /* Remove unnecessary whitespaces. */
+                /* Remove unnecessary whitespace. */
                 fact = fact.replaceAll(" ","");
 
                 /* Retrieve fact predicate name. */
@@ -56,6 +55,7 @@ public class Parser {
                 Expression expression = new Expression(predicate,listOfTerms,prob);
                 db.edb.addFact(expression);
             }
+            lineScanner.close();
         }
         catch (FileNotFoundException e){
             e.printStackTrace();
