@@ -4,26 +4,24 @@ import java.util.HashMap;
 import java.util.List;
 
 public class EDB {
-	
+
 	/*
-	 *  HashMap<Predicate, HashMap<Terms, Probability >>
+	 * HashMap<Predicate, HashMap<Terms, Probability >>
 	 */
-	public HashMap<String, HashMap<List<String>, Double >> facts = new HashMap<>();
-	
+	public HashMap<String, HashMap<List<String>, Double>> facts = new HashMap<>();
+
 	/*
-	 *  Adds a new fact.
+	 * Adds a new fact.
 	 */
 	public void addFact(Expression exp) {
 		HashMap<List<String>, Double> factList = facts.get(exp.predicate);
-		if(factList == null) {
+		if (factList == null) {
 			factList = new HashMap<List<String>, Double>();
 		}
-		if(factList.containsKey(exp.terms)) {
+		if (factList.containsKey(exp.terms)) {
 			Double oldProb = factList.get(exp.terms);
-			if(!oldProb.equals(exp.probability)) {
-				Double newProb = oldProb + exp.probability - (oldProb * exp.probability);
-				factList.put(exp.terms, newProb);
-			}
+			Double newProb = oldProb + exp.probability - (oldProb * exp.probability);
+			factList.put(exp.terms, newProb);
 		} else {
 			factList.put(exp.terms, exp.probability);
 		}
