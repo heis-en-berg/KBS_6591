@@ -78,7 +78,6 @@ public class Parser {
         String[] addAtoms = atoms.split(",");
         for (String y : addAtoms) {
             listOfTerms.add(y);
-            System.out.print(y);
         }
         /* Add the given fact in db. */
         Expression expression = new Expression(predicate, listOfTerms, prob);

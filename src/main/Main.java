@@ -1,6 +1,10 @@
 package main;
 
-import problog.model.DB;
+import java.util.ArrayList;
+import java.util.List;
+
+import problog.evaluation.NaiveEvaluator;
+import problog.model.Expression;
 import problog.parser.Parser;
 
 public class Main {
@@ -8,8 +12,8 @@ public class Main {
     public  static  void main(String[] args){
 
         Parser parser = new Parser();
-        DB db = parser.db;
-
+        NaiveEvaluator naiveEvaluator = new NaiveEvaluator();
+        naiveEvaluator.performNaiveEvaluation(parser.db);
     }
 
 }
