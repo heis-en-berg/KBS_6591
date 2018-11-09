@@ -105,12 +105,18 @@ public class Parser {
                 CharSequence test = ":-";
                 boolean test_result = clause.contains(test);
 
-                /*Add Rule*/
-                if (test_result) {
-                    addRule(clause);
-                }
-                else {
-                    addFact(clause);
+                /* Line should not be empty. */
+                if (!clause.isEmpty()) {
+
+                    /* Add Rule*/
+                    if (test_result) {
+                        addRule(clause);
+                    }
+
+                    /* Add a fact. */
+                    else {
+                        addFact(clause);
+                    }
                 }
             }
             lineScanner.close();
