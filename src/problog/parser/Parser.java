@@ -10,7 +10,7 @@ import problog.model.DB;
 import problog.model.Expression;
 
 public class Parser {
-    public static DB db;
+    public DB db;
     public Parser(){
         db = new DB();
         readFile();
@@ -81,7 +81,7 @@ public class Parser {
         }
         /* Add the given fact in db. */
         Expression expression = new Expression(predicate, listOfTerms, prob);
-        db.edb.addFact(expression);
+        db.edb.addFact(expression, 0.0);
     }
 
     public void readFile() {

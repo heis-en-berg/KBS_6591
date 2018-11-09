@@ -10,20 +10,23 @@ import problog.model.Expression;
 public class NaiveEvaluator {
 
 	public void performNaiveEvaluation(DB db) {
-
 		for (Expression head : db.idb.rules.keySet()) {
 			ArrayList<Expression> body = db.idb.rules.get(head);
 			Boolean isChange = true;
 			while (isChange) {
 				HashMap<String, String> variables = new HashMap<>();
 				naiveEvaluator(head, body, 0, variables, db);
-
 				for (String predicate : db.edb_temp.facts.keySet()) {
 					HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
 					for (List<String> newfact : newFactList.keySet()) {
-						if (db.edb.facts.containsKey(predicate) && db.edb.facts.get(predicate).containsKey(newfact)
-								&& db.edb.facts.get(predicate).get(newfact).equals(newFactList.get(newfact))) {
-							isChange = false;
+						if (db.edb.facts.containsKey(predicate) && db.edb.facts.get(predicate).containsKey(newfact)) {
+							Double newProb = head.probability + newFactList.get(newfact) - (head.probability * newFactList.get(newfact));
+							Double oldProb = db.edb.facts.get(predicate).get(newfact);
+							if(oldProb.equals(newProb)) {
+								isChange = false;
+							} else {
+								isChange = true;
+							}
 						} else {
 							isChange = true;
 							break;
@@ -35,18 +38,14 @@ public class NaiveEvaluator {
 				}
 				if (isChange) {
 					for (String predicate : db.edb_temp.facts.keySet()) {
-						if (db.edb.facts.containsKey(predicate)) {
-							HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
-							for (List<String> terms : newFactList.keySet()) {
-								db.edb.facts.get(predicate).put(terms, newFactList.get(terms));
-							}
-						} else {
-							db.edb.facts.putAll(db.edb_temp.facts);
+						HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
+						for (List<String> terms : newFactList.keySet()) {
+							Expression newExp = new Expression(predicate, terms, newFactList.get(terms));
+							db.edb.addFact(newExp, head.probability);
 						}
 					}
 				}
 				db.edb_temp.facts = new HashMap<>();
-				// TODO: when to stop?
 			}
 		}
 
@@ -65,7 +64,6 @@ public class NaiveEvaluator {
 		if (bodyIndex >= body.size()) {
 			return;
 		}
-
 		HashMap<List<String>, Double> factList = db.edb.facts.get(body.get(bodyIndex).predicate);
 		Expression currentBodyExpression = body.get(bodyIndex);
 		List<String> currentBodyExpressionVariableList = currentBodyExpression.terms;
@@ -99,7 +97,7 @@ public class NaiveEvaluator {
 						if (newFact.size() == head.terms.size()) {
 							Double probability = calculateProbability(head, body, db, oldPlusNewVariables);
 							Expression newFactExp = new Expression(head.predicate, newFact, probability);
-							db.edb_temp.addFact(newFactExp);
+							db.edb_temp.addFactToTempEDB(newFactExp, head.probability);
 						}
 
 					} else {
@@ -124,7 +122,9 @@ public class NaiveEvaluator {
 			minBodyProbability = Math.min(minBodyProbability, db.edb.facts.get(bodyElement.predicate).get(termsValues));
 		}
 
-		return minBodyProbability * head.probability;
+		minBodyProbability = minBodyProbability * head.probability;
+		
+		return minBodyProbability;
 	}
 
 }

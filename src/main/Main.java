@@ -1,10 +1,6 @@
 package main;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import problog.evaluation.NaiveEvaluator;
-import problog.model.Expression;
 import problog.parser.Parser;
 
 public class Main {
@@ -14,6 +10,7 @@ public class Main {
         Parser parser = new Parser();
         NaiveEvaluator naiveEvaluator = new NaiveEvaluator();
         naiveEvaluator.performNaiveEvaluation(parser.db);
+        // /Users/karandhingra/Documents/MyConcordia/KnowledgeBaseSyasytems/Project/ProbLog/test.pl
     }
 
 }
