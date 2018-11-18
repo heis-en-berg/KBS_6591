@@ -13,13 +13,19 @@ public class EDB {
 	/*
 	 * Adds a new fact to EDB.
 	 */
-	public void addFact(Expression exp) {
+	public Boolean addFact(Expression exp) {
+		Boolean isSameExpression = false;
 		HashMap<List<String>, Double> factList = facts.get(exp.predicate);
 		if (factList == null) {
 			factList = new HashMap<List<String>, Double>();
 		}
-		factList.put(exp.terms, exp.probability);
-		facts.put(exp.predicate, factList);
+		if(factList.containsKey(exp.terms) && factList.get(exp.terms).equals(exp.probability)) {
+			isSameExpression = true;
+		} else {
+			factList.put(exp.terms, exp.probability);
+			facts.put(exp.predicate, factList);
+		}
+		return isSameExpression;
 	}
 
 	/*
