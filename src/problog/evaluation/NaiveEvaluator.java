@@ -17,9 +17,8 @@ public class NaiveEvaluator {
 				HashMap<String, String> variables = new HashMap<>();
 				naiveEvaluator(head, body, 0, variables, db);
 			}
-			isSame = compareTempEDBandEDB(db);
+			isSame = putTempEDBtoEDB(db);
 			if(!isSame) {
-				putTempEDBtoEDB(db);
 				db.edb_temp.facts = new HashMap<>();
 				isSame = true;
 			} else {
@@ -30,30 +29,18 @@ public class NaiveEvaluator {
 		
 	}
 
-	private boolean compareTempEDBandEDB(DB db) {
-		for (String predicate : db.edb_temp.facts.keySet()) {
-			if(db.edb.facts.containsKey(predicate)) {
-				HashMap<List<String>, Double> tempFactList = db.edb_temp.facts.get(predicate);
-				for(List<String> terms : tempFactList.keySet()) {
-					if(!db.edb.facts.get(predicate).containsKey(terms) || !tempFactList.get(terms).equals(db.edb.facts.get(predicate).get(terms))){
-						return false;
-					}
-				}
-			} else {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private void putTempEDBtoEDB(DB db) {
+	private Boolean putTempEDBtoEDB(DB db) {
+		Boolean isSame = true;
 		for (String predicate : db.edb_temp.facts.keySet()) {
 			HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
 			for (List<String> terms : newFactList.keySet()) {
 				Expression newExp = new Expression(predicate, terms, newFactList.get(terms));
-				db.edb.addFact(newExp);
+				if(!db.edb.addFact(newExp)) {
+					isSame = false;
+				}
 			}
 		}
+		return isSame;
 	}
 
 	private void printEDB(DB db) {
