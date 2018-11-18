@@ -1,13 +1,13 @@
 package problog.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class IDB {
     /*
      *   HashMap<Head, ArrayList<Expression>>
      */
-    public HashMap<Expression, ArrayList<Expression>> rules = new HashMap<>();
+    public LinkedHashMap<Expression, ArrayList<Expression>> rules = new LinkedHashMap<>();
     /*
      *  Adds a new rule.
      */
