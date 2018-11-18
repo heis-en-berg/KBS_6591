@@ -11,30 +11,33 @@ public class EDB {
 	public HashMap<String, HashMap<List<String>, Double>> facts = new HashMap<>();
 
 	/*
-	 * Adds a new fact.
+	 * Adds a new fact to EDB.
 	 */
-	public void addFact(Expression exp, Double ruleProbability) {
+	public void addFact(Expression exp) {
 		HashMap<List<String>, Double> factList = facts.get(exp.predicate);
 		if (factList == null) {
 			factList = new HashMap<List<String>, Double>();
 		}
-		Double newProb = 0.0;
-		newProb = ruleProbability + exp.probability - (ruleProbability * exp.probability);
-		factList.put(exp.terms, newProb);
+		factList.put(exp.terms, exp.probability);
 		facts.put(exp.predicate, factList);
 	}
 
 	/*
 	 * Adds a new fact to temp EDB.
 	 */
-	public void addFactToTempEDB(Expression exp, Double ruleProbability) {
+	public void addFactToTempEDB(Expression exp) {
 		HashMap<List<String>, Double> factList = facts.get(exp.predicate);
 		if (factList == null) {
 			factList = new HashMap<List<String>, Double>();
 		}
-		Double newProb = 0.0;
-		newProb = exp.probability;
-		factList.put(exp.terms, newProb);
+		if(factList.containsKey(exp.terms)) {
+			Double oldProb = factList.get(exp.terms);
+			factList.remove(exp.terms);
+			Double newProb = oldProb + exp.probability - (oldProb * exp.probability);
+			factList.put(exp.terms, newProb);
+		} else {
+			factList.put(exp.terms, exp.probability);
+		}
 		facts.put(exp.predicate, factList);
 
 	}

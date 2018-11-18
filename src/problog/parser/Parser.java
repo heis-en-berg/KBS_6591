@@ -81,7 +81,7 @@ public class Parser {
         }
         /* Add the given fact in db. */
         Expression expression = new Expression(predicate, listOfTerms, prob);
-        db.edb.addFact(expression, 0.0);
+        db.edb.addFact(expression);
     }
 
     public void readFile() {
