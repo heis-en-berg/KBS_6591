@@ -10,7 +10,7 @@ public class Main {
         Parser parser = new Parser();
         NaiveEvaluator naiveEvaluator = new NaiveEvaluator();
         naiveEvaluator.performNaiveEvaluation(parser.db);
-        // /Users/karandhingra/Documents/MyConcordia/KnowledgeBaseSyasytems/Project/ProbLog/test.pl
+
     }
 
 }

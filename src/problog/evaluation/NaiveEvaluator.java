@@ -10,52 +10,59 @@ import problog.model.Expression;
 public class NaiveEvaluator {
 
 	public void performNaiveEvaluation(DB db) {
-		for (Expression head : db.idb.rules.keySet()) {
-			ArrayList<Expression> body = db.idb.rules.get(head);
-			Boolean isChange = true;
-			while (isChange) {
+		boolean isSame = true;
+		while(isSame) {
+			for (Expression head : db.idb.rules.keySet()) {
+				ArrayList<Expression> body = db.idb.rules.get(head);
 				HashMap<String, String> variables = new HashMap<>();
 				naiveEvaluator(head, body, 0, variables, db);
-				for (String predicate : db.edb_temp.facts.keySet()) {
-					HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
-					for (List<String> newfact : newFactList.keySet()) {
-						if (db.edb.facts.containsKey(predicate) && db.edb.facts.get(predicate).containsKey(newfact)) {
-							Double newProb = head.probability + newFactList.get(newfact) - (head.probability * newFactList.get(newfact));
-							Double oldProb = db.edb.facts.get(predicate).get(newfact);
-							if(oldProb.equals(newProb)) {
-								isChange = false;
-							} else {
-								isChange = true;
-							}
-						} else {
-							isChange = true;
-							break;
-						}
-					}
-					if (isChange) {
-						break;
-					}
-				}
-				if (isChange) {
-					for (String predicate : db.edb_temp.facts.keySet()) {
-						HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
-						for (List<String> terms : newFactList.keySet()) {
-							Expression newExp = new Expression(predicate, terms, newFactList.get(terms));
-							db.edb.addFact(newExp, head.probability);
-						}
-					}
-				}
+			}
+			isSame = compareTempEDBandEDB(db);
+			if(!isSame) {
+				putTempEDBtoEDB(db);
 				db.edb_temp.facts = new HashMap<>();
+				isSame = true;
+			} else {
+				printEDB(db);
+				return;
 			}
 		}
+		
+	}
 
+	private boolean compareTempEDBandEDB(DB db) {
+		for (String predicate : db.edb_temp.facts.keySet()) {
+			if(db.edb.facts.containsKey(predicate)) {
+				HashMap<List<String>, Double> tempFactList = db.edb_temp.facts.get(predicate);
+				for(List<String> terms : tempFactList.keySet()) {
+					if(!db.edb.facts.get(predicate).containsKey(terms) || !tempFactList.get(terms).equals(db.edb.facts.get(predicate).get(terms))){
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void putTempEDBtoEDB(DB db) {
+		for (String predicate : db.edb_temp.facts.keySet()) {
+			HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
+			for (List<String> terms : newFactList.keySet()) {
+				Expression newExp = new Expression(predicate, terms, newFactList.get(terms));
+				db.edb.addFact(newExp);
+			}
+		}
+	}
+
+	private void printEDB(DB db) {
 		for (String predicate : db.edb.facts.keySet()) {
 			HashMap<List<String>, Double> factList = db.edb.facts.get(predicate);
 			for (List<String> terms : factList.keySet()) {
 				System.out.println(predicate + terms.toString() + ". : " + factList.get(terms));
 			}
 		}
-
 	}
 
 	private void naiveEvaluator(Expression head, ArrayList<Expression> body, Integer bodyIndex,
@@ -65,9 +72,12 @@ public class NaiveEvaluator {
 			return;
 		}
 		HashMap<List<String>, Double> factList = db.edb.facts.get(body.get(bodyIndex).predicate);
+		if(factList == null) {
+			return;
+		}
 		Expression currentBodyExpression = body.get(bodyIndex);
 		List<String> currentBodyExpressionVariableList = currentBodyExpression.terms;
-
+		
 		for (List<String> fact : factList.keySet()) {
 			HashMap<String, String> newVariables = new HashMap<>();
 			for (int i = 0; i < currentBodyExpressionVariableList.size(); i++) {
@@ -97,7 +107,7 @@ public class NaiveEvaluator {
 						if (newFact.size() == head.terms.size()) {
 							Double probability = calculateProbability(head, body, db, oldPlusNewVariables);
 							Expression newFactExp = new Expression(head.predicate, newFact, probability);
-							db.edb_temp.addFactToTempEDB(newFactExp, head.probability);
+							db.edb_temp.addFactToTempEDB(newFactExp);
 						}
 
 					} else {
@@ -123,7 +133,7 @@ public class NaiveEvaluator {
 		}
 
 		minBodyProbability = minBodyProbability * head.probability;
-		
+
 		return minBodyProbability;
 	}
 
