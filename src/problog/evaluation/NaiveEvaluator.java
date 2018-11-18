@@ -85,10 +85,8 @@ public class NaiveEvaluator {
 					if (bodyIndex == body.size() - 1) {
 						List<String> newFact = new ArrayList<String>();
 						for (String headVariable : head.terms) {
-							if (variables.containsKey(headVariable)) {
-								newFact.add(variables.get(headVariable));
-							} else if (newVariables.containsKey(headVariable)) {
-								newFact.add(newVariables.get(headVariable));
+							if (oldPlusNewVariables.containsKey(headVariable)) {
+								newFact.add(oldPlusNewVariables.get(headVariable));
 							}
 						}
 						if (newFact.size() == head.terms.size()) {
