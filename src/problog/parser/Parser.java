@@ -8,14 +8,15 @@ import java.util.Scanner;
 
 import problog.model.DB;
 import problog.model.Expression;
+import problog.model.ExtraEDB;
 
 public class Parser {
     public DB db;
+    public ExtraEDB extraEDB;
     public Parser(){
         db = new DB();
         readFile();
     }
-
     /* Method to add rules to DB. */
     public void  addRule(String rule){
         String[] splitRule = rule.split(":-");
@@ -95,6 +96,7 @@ public class Parser {
 
         try{
             Scanner lineScanner = new Scanner(file);
+            int numberOfRules = 0;
             while(lineScanner.hasNextLine()) {
                 String clause = lineScanner.nextLine();
 
@@ -111,6 +113,7 @@ public class Parser {
                     /* Add Rule*/
                     if (test_result) {
                         addRule(clause);
+                        numberOfRules++;
                     }
 
                     /* Add a fact. */
@@ -119,6 +122,7 @@ public class Parser {
                     }
                 }
             }
+            extraEDB = new ExtraEDB(numberOfRules);
             lineScanner.close();
         }
         catch (FileNotFoundException e){
