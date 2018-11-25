@@ -8,14 +8,11 @@ import java.util.Scanner;
 
 import problog.model.DB;
 import problog.model.Expression;
-import problog.model.ExtraEDB;
 
 public class Parser {
     public DB db;
-    public ExtraEDB extraEDB;
     public Parser(){
         db = new DB();
-        extraEDB = new ExtraEDB();
         readFile();
     }
     /* Method to add rules to DB. */
