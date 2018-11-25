@@ -1,9 +1,11 @@
 package problog.model;
 
-public class ExtraEDB {
-    public  EDB EDBObject[];
-    public ExtraEDB(int numberOfRules){
+import java.util.ArrayList;
 
-        EDBObject = new EDB[numberOfRules];
+public class ExtraEDB {
+    public ArrayList<EDB> arrayListOfEDB = new ArrayList<>();
+    public EDB lastFactEDB;
+    public ExtraEDB(){
+        lastFactEDB = new EDB();
     }
 }

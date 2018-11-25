@@ -15,6 +15,7 @@ public class Parser {
     public ExtraEDB extraEDB;
     public Parser(){
         db = new DB();
+        extraEDB = new ExtraEDB();
         readFile();
     }
     /* Method to add rules to DB. */
@@ -113,7 +114,6 @@ public class Parser {
                     /* Add Rule*/
                     if (test_result) {
                         addRule(clause);
-                        numberOfRules++;
                     }
 
                     /* Add a fact. */
@@ -122,7 +122,6 @@ public class Parser {
                     }
                 }
             }
-            extraEDB = new ExtraEDB(numberOfRules);
             lineScanner.close();
         }
         catch (FileNotFoundException e){
