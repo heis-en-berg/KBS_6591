@@ -6,24 +6,23 @@ import java.util.List;
 
 import problog.model.DB;
 import problog.model.EDB;
-import problog.model.ExtraEDB;
 import problog.model.Expression;
 
 public class SemiNaiveEvaluator {
 
-    public void performSemiNaiveEvaluation(DB db, ExtraEDB extraEDB) {
+    public void performSemiNaiveEvaluation(DB db) {
         boolean isSame = true;
         while(isSame) {
             int dbCount = 0;
             for (Expression head : db.idb.rules.keySet()) {
                 ArrayList<Expression> body = db.idb.rules.get(head);
                 HashMap<String, String> variables = new HashMap<>();
-                semiNaiveEvaluator(head, body, 0, variables, db, extraEDB, dbCount);
+                semiNaiveEvaluator(head, body, 0, variables, db, dbCount);
                 dbCount++;
             }
             // in case next loop does not run.
             dbCount--;
-            isSame = putSemiTempEDBtoEDB(db,extraEDB,dbCount);
+            isSame = putSemiTempEDBtoEDB(db, dbCount);
             if(!isSame) {
                 db.edb.addRuleFactFromEDBTempToLastEDB();
                 isSame = true;
@@ -35,14 +34,14 @@ public class SemiNaiveEvaluator {
 
     }
 
-    private  Boolean putSemiTempEDBtoEDB(DB db, ExtraEDB extraEDB, int dbCount) {
+    private  Boolean putSemiTempEDBtoEDB(DB db, int dbCount) {
         Boolean isSame = true;
         List<String> terms = new ArrayList<>();
         for (String predicate : db.edb_temp.semiEdbTemp.keySet()) {
             terms.add(predicate);
             Double probability = 0.0;
             for (int i = 0; i <= dbCount; i++) {
-                HashMap<List<String>, Double> idbExpression = extraEDB.arrayListOfEDB.get(dbCount).ruleFacts.get(predicate);
+                HashMap<List<String>, Double> idbExpression = db.edb.arrayListOfEDB.get(dbCount).ruleFacts.get(predicate);
                 if (idbExpression.isEmpty()) {
                     continue;
                 } else {
@@ -66,7 +65,7 @@ public class SemiNaiveEvaluator {
     }
 
     private void semiNaiveEvaluator(Expression head, ArrayList<Expression> body, Integer bodyIndex,
-                                HashMap<String, String> variables, DB db, ExtraEDB extraEDB, int dbCount) {
+                                HashMap<String, String> variables, DB db, int dbCount) {
 
         if (bodyIndex >= body.size()) {
             return;
@@ -105,16 +104,16 @@ public class SemiNaiveEvaluator {
                         if (newFact.size() == head.terms.size()) {
                             Double probability = calculateProbability(head, body, db, oldPlusNewVariables);
                             Expression newFactExp = new Expression(head.predicate, newFact, probability);
-                            if(extraEDB.arrayListOfEDB.size() <= dbCount){
-                                extraEDB.arrayListOfEDB.add(dbCount, new EDB());
+                            if(db.edb.arrayListOfEDB.size() <= dbCount){
+                                db.edb.arrayListOfEDB.add(dbCount, new EDB());
                             }
-                            extraEDB.arrayListOfEDB.get(dbCount).semiRuleWiseAddFact(newFactExp);
+                            db.edb.arrayListOfEDB.get(dbCount).semiRuleWiseAddFact(newFactExp);
 //                            db.edb_temp.addFactToTempEDB(newFactExp);
                             db.edb_temp.semiAddEDBTempFacts(newFactExp);
                         }
 
                     } else {
-                        semiNaiveEvaluator(head, body, bodyIndex + 1, oldPlusNewVariables, db, extraEDB, dbCount);
+                        semiNaiveEvaluator(head, body, bodyIndex + 1, oldPlusNewVariables, db, dbCount);
                     }
                 }
 

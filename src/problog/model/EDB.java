@@ -1,10 +1,16 @@
 package problog.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class EDB {
 
+	public ArrayList<EDB> arrayListOfEDB = new ArrayList<>();
+	public EDB lastFactEDB;
+	public EDB(){
+		lastFactEDB = new EDB();
+	}
 	/*
 	 * HashMap<Predicate, HashMap<Terms, Probability >>
 	 */
