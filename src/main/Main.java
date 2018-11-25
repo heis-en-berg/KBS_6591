@@ -1,11 +1,7 @@
 package main;
 
-import problog.evaluation.NaiveEvaluator;
 import problog.parser.Parser;
 import problog.evaluation.SemiNaiveEvaluator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class Main {
 
@@ -17,7 +13,7 @@ public class Main {
 ////        naiveEvaluator.performNaiveEvaluation(parser.db);
 //
         SemiNaiveEvaluator seminaiveEvaluator = new SemiNaiveEvaluator();
-        seminaiveEvaluator.performSemiNaiveEvaluation(parser.db, parser.extraEDB);
+        seminaiveEvaluator.performSemiNaiveEvaluation(parser.db);
 //        List<String> listex = new ArrayList<>();
 //        listex.add("Sodhi");
 //        String sahil = "Sahil";
