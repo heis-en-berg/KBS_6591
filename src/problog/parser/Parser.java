@@ -94,7 +94,6 @@ public class Parser {
 
         try{
             Scanner lineScanner = new Scanner(file);
-            int numberOfRules = 0;
             while(lineScanner.hasNextLine()) {
                 String clause = lineScanner.nextLine();
 
