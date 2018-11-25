@@ -10,8 +10,8 @@ import problog.model.Expression;
 public class NaiveEvaluator {
 
 	public void performNaiveEvaluation(DB db) {
-		boolean isSame = true;
-		while(isSame) {
+		boolean isSame = false;
+		while(!isSame) {
 			for (Expression head : db.idb.rules.keySet()) {
 				ArrayList<Expression> body = db.idb.rules.get(head);
 				HashMap<String, String> variables = new HashMap<>();
@@ -20,13 +20,9 @@ public class NaiveEvaluator {
 			isSame = putTempEDBtoEDB(db);
 			if(!isSame) {
 				db.edb_temp.facts = new HashMap<>();
-				isSame = true;
-			} else {
-				printEDB(db);
-				return;
 			}
 		}
-		
+		printEDB(db);
 	}
 
 	private Boolean putTempEDBtoEDB(DB db) {
@@ -58,7 +54,7 @@ public class NaiveEvaluator {
 		if (bodyIndex >= body.size()) {
 			return;
 		}
-		HashMap<List<String>, Double> factList = db.edb.facts.get(body.get(bodyIndex).predicate);
+		HashMap<List<String>, Double> factList = getFactList(db, body, bodyIndex, variables);
 		if(factList == null) {
 			return;
 		}
@@ -68,13 +64,9 @@ public class NaiveEvaluator {
 		for (List<String> fact : factList.keySet()) {
 			HashMap<String, String> newVariables = new HashMap<>();
 			for (int i = 0; i < currentBodyExpressionVariableList.size(); i++) {
-				if (variables.containsKey(currentBodyExpressionVariableList.get(i))) {
-					if (!fact.get(i).equals(variables.get(currentBodyExpressionVariableList.get(i)))) {
-						break;
-					}
-				} else {
-					newVariables.put(currentBodyExpressionVariableList.get(i), fact.get(i));
-				}
+				if (!variables.containsKey(currentBodyExpressionVariableList.get(i))) {
+                	newVariables.put(currentBodyExpressionVariableList.get(i), fact.get(i));
+                }
 
 				if (i == currentBodyExpressionVariableList.size() - 1) {
 
@@ -103,6 +95,48 @@ public class NaiveEvaluator {
 			}
 		}
 
+	}
+	
+	private HashMap<List<String>, Double> getFactList(DB db, ArrayList<Expression> body, Integer bodyIndex,
+			HashMap<String, String> variables) {
+    	final HashMap<List<String>, Double> factList;
+    	List<String> currentBodyExpressionVariables = body.get(bodyIndex).terms;
+    	List<String> factMatched = new ArrayList<>();
+    	Integer matchCount = 0;
+    	for(String variableName : currentBodyExpressionVariables) {
+    		if(variables.containsKey(variableName)) {
+    			factMatched.add(variables.get(variableName));
+    			matchCount++;
+    		} else {
+    			factMatched.add(null);
+    		}
+    	}
+    	if(matchCount == 0) {
+    		factList = db.edb.facts.get(body.get(bodyIndex).predicate);
+    	} else if(matchCount.equals(currentBodyExpressionVariables.size())) {
+    		factList = new HashMap<>();
+    		factList.put(factMatched, db.edb.facts.get(body.get(bodyIndex).predicate).get(factMatched));
+    	} else {
+    		factList = new HashMap<>();
+    		HashMap<List<String>, Double> tempFactList = db.edb.facts.get(body.get(bodyIndex).predicate);
+    		if(tempFactList == null) {
+    			return null;
+    		}
+    		tempFactList.entrySet().stream().forEach((entry) -> {
+    			List<String> currentTerms = entry.getKey();
+    			Double currentProbability = entry.getValue();
+    			boolean isFactValid = true;
+    			for(int i = 0; i < currentTerms.size(); i++) {
+    				if(factMatched.get(i) != null && !factMatched.get(i).equals(currentTerms.get(i))) {
+    					isFactValid  = false;
+    				}
+    			}
+    			if(isFactValid) {
+    				factList.put(currentTerms, currentProbability);
+    			}
+    		});
+    	}
+		return factList;
 	}
 
 	private Double calculateProbability(Expression head, ArrayList<Expression> body, DB db,

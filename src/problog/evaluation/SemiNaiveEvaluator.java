@@ -11,45 +11,62 @@ import problog.model.Expression;
 public class SemiNaiveEvaluator {
 
     public void performSemiNaiveEvaluation(DB db) {
-        boolean isSame = true;
-        while(isSame) {
-            int dbCount = 0;
+    	
+    	boolean isSame = false;
+    	db.last_derived_facts.facts.putAll(db.edb.facts);
+        while(!isSame) {
+            int currentRuleNumber = 0;
             for (Expression head : db.idb.rules.keySet()) {
-                ArrayList<Expression> body = db.idb.rules.get(head);
-                HashMap<String, String> variables = new HashMap<>();
-                semiNaiveEvaluator(head, body, 0, variables, db, dbCount);
-                dbCount++;
+            	for(String lastFactPredicate : db.last_derived_facts.facts.keySet()) {
+            		for(List<String> lastDerivedFact : db.last_derived_facts.facts.get(lastFactPredicate).keySet()) {
+            			ArrayList<Expression> body = db.idb.rules.get(head);
+                		for(Expression currentBodyExpression: body) {
+                			HashMap<String, String> variables = new HashMap<>();
+                			if(currentBodyExpression.predicate.equals(lastFactPredicate)) {
+                				fillVariablesWithLastFact(currentBodyExpression.terms, lastDerivedFact, variables);
+                				semiNaiveEvaluator(head, body, 0, variables, db, currentRuleNumber);
+                			}
+                		}
+            		}
+            	}
+                currentRuleNumber++;
             }
-            // in case next loop does not run.
-            dbCount--;
-            isSame = putSemiTempEDBtoEDB(db, dbCount);
+            isSame = putTempEDBtoEDB(db);
             if(!isSame) {
-                db.edb.addRuleFactFromEDBTempToLastEDB();
-                isSame = true;
-            } else {
-                printEDB(db);
-                return;
+            	db.last_derived_facts.facts = new HashMap<>();
+            	db.last_derived_facts.facts.putAll(db.edb_temp.facts);
+            	db.edb_temp.facts = new HashMap<>();
             }
         }
-
+        printEDB(db);
+        
     }
 
-    private  Boolean putSemiTempEDBtoEDB(DB db, int dbCount) {
+    private void fillVariablesWithLastFact(List<String> currentBodyExpressionTerms, List<String> lastDerivedFact,
+			HashMap<String, String> variables) {
+		for(int i = 0; i < currentBodyExpressionTerms.size(); i++) {
+			variables.put(currentBodyExpressionTerms.get(i), lastDerivedFact.get(i));
+		}
+		
+	}
+
+	private  Boolean putTempEDBtoEDB(DB db) {
         Boolean isSame = true;
-        List<String> terms = new ArrayList<>();
-        for (String predicate : db.edb_temp.semiEdbTemp.keySet()) {
-            terms.add(predicate);
+        for (String predicate : db.edb_temp.facts.keySet()) {
+        	HashMap<List<String>, Double> newFactList = db.edb_temp.facts.get(predicate);
             Double probability = 0.0;
-            for (int i = 0; i <= dbCount; i++) {
-                HashMap<List<String>, Double> idbExpression = db.edb.arrayListOfEDB.get(dbCount).ruleFacts.get(predicate);
-                if (idbExpression.isEmpty()) {
-                    continue;
-                } else {
-                    probability = probability + idbExpression.get(idbExpression.keySet()) - (probability * idbExpression.get(idbExpression.keySet()));
-                }
-                Expression newExp = new Expression(predicate,terms,probability);
-                db.edb.addFact(newExp);
-                terms.clear();
+            for (List<String> newFact : newFactList.keySet()) {
+            	for(EDB ruleEDB : db.ruleFacts) {
+            		if(ruleEDB.facts.containsKey(predicate) && ruleEDB.facts.get(predicate).containsKey(newFact)) {
+            			Double ruleFactProbability = ruleEDB.facts.get(predicate).get(newFact);
+            			probability = probability + ruleFactProbability - (probability * ruleFactProbability);
+            		}
+            	}
+                Expression newExp = new Expression(predicate,newFact,probability);
+                if(!db.edb.addFact(newExp)) {
+					isSame = false;
+				}
+                probability = 0.0;
             }
         }
         return isSame;
@@ -65,12 +82,12 @@ public class SemiNaiveEvaluator {
     }
 
     private void semiNaiveEvaluator(Expression head, ArrayList<Expression> body, Integer bodyIndex,
-                                HashMap<String, String> variables, DB db, int dbCount) {
+                                HashMap<String, String> variables, DB db, int currentRuleNumber) {
 
         if (bodyIndex >= body.size()) {
             return;
         }
-        HashMap<List<String>, Double> factList = db.edb.facts.get(body.get(bodyIndex).predicate);
+        HashMap<List<String>, Double> factList = getFactList(db, body, bodyIndex, variables);
         if(factList == null) {
             return;
         }
@@ -80,12 +97,8 @@ public class SemiNaiveEvaluator {
         for (List<String> fact : factList.keySet()) {
             HashMap<String, String> newVariables = new HashMap<>();
             for (int i = 0; i < currentBodyExpressionVariableList.size(); i++) {
-                if (variables.containsKey(currentBodyExpressionVariableList.get(i))) {
-                    if (!fact.get(i).equals(variables.get(currentBodyExpressionVariableList.get(i)))) {
-                        break;
-                    }
-                } else {
-                    newVariables.put(currentBodyExpressionVariableList.get(i), fact.get(i));
+                if (!variables.containsKey(currentBodyExpressionVariableList.get(i))) {
+                	newVariables.put(currentBodyExpressionVariableList.get(i), fact.get(i));
                 }
 
                 if (i == currentBodyExpressionVariableList.size() - 1) {
@@ -104,16 +117,16 @@ public class SemiNaiveEvaluator {
                         if (newFact.size() == head.terms.size()) {
                             Double probability = calculateProbability(head, body, db, oldPlusNewVariables);
                             Expression newFactExp = new Expression(head.predicate, newFact, probability);
-                            if(db.edb.arrayListOfEDB.size() <= dbCount){
-                                db.edb.arrayListOfEDB.add(dbCount, new EDB());
+                            if(db.ruleFacts.size() <=  currentRuleNumber) {
+                            	db.ruleFacts.add(currentRuleNumber, new EDB());
                             }
-                            db.edb.arrayListOfEDB.get(dbCount).semiRuleWiseAddFact(newFactExp);
-//                            db.edb_temp.addFactToTempEDB(newFactExp);
-                            db.edb_temp.semiAddEDBTempFacts(newFactExp);
+                            EDB ruleEDB = db.ruleFacts.get(currentRuleNumber);
+                            ruleEDB.addFact(newFactExp);
+                            db.edb_temp.addFactToTempEDB(newFactExp);
                         }
 
                     } else {
-                        semiNaiveEvaluator(head, body, bodyIndex + 1, oldPlusNewVariables, db, dbCount);
+                        semiNaiveEvaluator(head, body, bodyIndex + 1, oldPlusNewVariables, db, currentRuleNumber);
                     }
                 }
 
@@ -122,7 +135,49 @@ public class SemiNaiveEvaluator {
 
     }
 
-    private Double calculateProbability(Expression head, ArrayList<Expression> body, DB db,
+    private HashMap<List<String>, Double> getFactList(DB db, ArrayList<Expression> body, Integer bodyIndex,
+			HashMap<String, String> variables) {
+    	final HashMap<List<String>, Double> factList;
+    	List<String> currentBodyExpressionVariables = body.get(bodyIndex).terms;
+    	List<String> factMatched = new ArrayList<>();
+    	Integer matchCount = 0;
+    	for(String variableName : currentBodyExpressionVariables) {
+    		if(variables.containsKey(variableName)) {
+    			factMatched.add(variables.get(variableName));
+    			matchCount++;
+    		} else {
+    			factMatched.add(null);
+    		}
+    	}
+    	if(matchCount == 0) {
+    		factList = db.edb.facts.get(body.get(bodyIndex).predicate);
+    	} else if(matchCount.equals(currentBodyExpressionVariables.size())) {
+    		factList = new HashMap<>();
+    		factList.put(factMatched, db.edb.facts.get(body.get(bodyIndex).predicate).get(factMatched));
+    	} else {
+    		factList = new HashMap<>();
+    		HashMap<List<String>, Double> tempFactList = db.edb.facts.get(body.get(bodyIndex).predicate);
+    		if(tempFactList == null) {
+    			return null;
+    		}
+    		tempFactList.entrySet().stream().forEach((entry) -> {
+    			List<String> currentTerms = entry.getKey();
+    			Double currentProbability = entry.getValue();
+    			boolean isFactValid = true;
+    			for(int i = 0; i < currentTerms.size(); i++) {
+    				if(factMatched.get(i) != null && !factMatched.get(i).equals(currentTerms.get(i))) {
+    					isFactValid  = false;
+    				}
+    			}
+    			if(isFactValid) {
+    				factList.put(currentTerms, currentProbability);
+    			}
+    		});
+    	}
+		return factList;
+	}
+
+	private Double calculateProbability(Expression head, ArrayList<Expression> body, DB db,
                                         HashMap<String, String> variables) {
         Double minBodyProbability = 1.1;
         for (Expression bodyElement : body) {
