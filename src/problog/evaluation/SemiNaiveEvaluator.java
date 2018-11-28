@@ -11,8 +11,8 @@ import problog.model.Expression;
 public class SemiNaiveEvaluator {
 
     public void performSemiNaiveEvaluation(DB db) {
-    	
     	boolean isSame = false;
+    	Integer numberOfIterations = 1;
     	db.last_derived_facts.facts.putAll(db.edb.facts);
         while(!isSame) {
             int currentRuleNumber = 0;
@@ -37,9 +37,9 @@ public class SemiNaiveEvaluator {
             	db.last_derived_facts.facts.putAll(db.edb_temp.facts);
             	db.edb_temp.facts = new HashMap<>();
             }
+            numberOfIterations++;
         }
-        printEDB(db);
-        
+        System.out.println("Number of iterations : " + numberOfIterations);
     }
 
     private void fillVariablesWithLastFact(List<String> currentBodyExpressionTerms, List<String> lastDerivedFact,
@@ -70,15 +70,6 @@ public class SemiNaiveEvaluator {
             }
         }
         return isSame;
-    }
-
-    private void printEDB(DB db) {
-        for (String predicate : db.edb.facts.keySet()) {
-            HashMap<List<String>, Double> factList = db.edb.facts.get(predicate);
-            for (List<String> terms : factList.keySet()) {
-                System.out.println(predicate + terms.toString() + ". : " + factList.get(terms));
-            }
-        }
     }
 
     private void semiNaiveEvaluator(Expression head, ArrayList<Expression> body, Integer bodyIndex,

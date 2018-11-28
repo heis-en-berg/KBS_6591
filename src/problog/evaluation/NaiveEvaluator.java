@@ -11,6 +11,7 @@ public class NaiveEvaluator {
 
 	public void performNaiveEvaluation(DB db) {
 		boolean isSame = false;
+		Integer numberOfIterations = 1;
 		while(!isSame) {
 			for (Expression head : db.idb.rules.keySet()) {
 				ArrayList<Expression> body = db.idb.rules.get(head);
@@ -21,8 +22,9 @@ public class NaiveEvaluator {
 			if(!isSame) {
 				db.edb_temp.facts = new HashMap<>();
 			}
+			numberOfIterations++;
 		}
-		printEDB(db);
+		System.out.println("Number of iterations : " + numberOfIterations);
 	}
 
 	private Boolean putTempEDBtoEDB(DB db) {
@@ -37,15 +39,6 @@ public class NaiveEvaluator {
 			}
 		}
 		return isSame;
-	}
-
-	private void printEDB(DB db) {
-		for (String predicate : db.edb.facts.keySet()) {
-			HashMap<List<String>, Double> factList = db.edb.facts.get(predicate);
-			for (List<String> terms : factList.keySet()) {
-				System.out.println(predicate + terms.toString() + ". : " + factList.get(terms));
-			}
-		}
 	}
 
 	private void naiveEvaluator(Expression head, ArrayList<Expression> body, Integer bodyIndex,

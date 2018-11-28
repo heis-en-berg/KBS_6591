@@ -1,8 +1,13 @@
 package problog.parser;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -11,6 +16,8 @@ import problog.model.Expression;
 
 public class Parser {
     public DB db;
+    public String filePath;
+    public String outPutFilePath;
     public Parser(){
         db = new DB();
         readFile();
@@ -88,9 +95,10 @@ public class Parser {
         /* Read clauses from file. */
         Scanner consoleScanner = new Scanner(System.in);
         System.out.print("Enter file path: ");
-        String filePath = consoleScanner.nextLine();
+        this.filePath = consoleScanner.nextLine();
         consoleScanner.close();
         File file = new File(filePath);
+        this.outPutFilePath = file.getParent() + "/output.pl";
 
         try{
             Scanner lineScanner = new Scanner(file);
@@ -123,5 +131,44 @@ public class Parser {
         catch (FileNotFoundException e){
             e.printStackTrace();
         }
+    }
+    
+    public void writeFile() {
+    	File file = new File(filePath);
+    	File outputFile = new File(this.outPutFilePath);
+    	if(outputFile.exists()) {
+    		outputFile.delete();
+    	}
+    	try {
+		outputFile.createNewFile();
+    	FileOutputStream fos = new FileOutputStream(outputFile);
+    	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+    	
+    	for (String predicate : db.edb.facts.keySet()) {
+			HashMap<List<String>, Double> factList = db.edb.facts.get(predicate);
+			for (List<String> terms : factList.keySet()) {
+				String fact = predicate + terms.toString() + ". : " + factList.get(terms);
+				fact = fact.replaceAll("\\[", "\\(");
+				fact = fact.replaceAll("\\]", "\\)");
+				bw.write(fact);
+				bw.newLine();
+			}
+		}
+
+    	bw.close();
+    	} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+    }
+    
+    public Integer getFactCount() {
+    	Integer factCount = 0;
+    	for (String predicate : db.edb.facts.keySet()) {
+			HashMap<List<String>, Double> factList = db.edb.facts.get(predicate);
+			for (List<String> terms : factList.keySet()) {
+				factCount++;
+			}
+		}
+    	return factCount;
     }
 }
