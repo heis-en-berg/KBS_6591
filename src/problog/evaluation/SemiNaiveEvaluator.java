@@ -1,6 +1,7 @@
 package problog.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,9 +58,11 @@ public class SemiNaiveEvaluator {
             Double probability = 0.0;
             for (List<String> newFact : newFactList.keySet()) {
             	for(EDB ruleEDB : db.ruleFacts) {
-            		if(ruleEDB.facts.containsKey(predicate) && ruleEDB.facts.get(predicate).containsKey(newFact)) {
-            			Double ruleFactProbability = ruleEDB.facts.get(predicate).get(newFact);
-            			probability = probability + ruleFactProbability - (probability * ruleFactProbability);
+            		if(ruleEDB.ruleFact.containsKey(predicate) && ruleEDB.ruleFact.get(predicate).containsKey(newFact)) {
+            			Collection<Double> fromFactProbs = ruleEDB.ruleFact.get(predicate).get(newFact).values();
+            			for(Double prob : fromFactProbs) {
+            				probability = probability + prob - (probability * prob);
+            			}
             		}
             	}
                 Expression newExp = new Expression(predicate,newFact,probability);
@@ -112,7 +115,7 @@ public class SemiNaiveEvaluator {
                             	db.ruleFacts.add(currentRuleNumber, new EDB());
                             }
                             EDB ruleEDB = db.ruleFacts.get(currentRuleNumber);
-                            ruleEDB.addFact(newFactExp);
+                            ruleEDB.addFactToRuleEDB(newFactExp, variables.toString());
                             db.edb_temp.addFactToTempEDB(newFactExp);
                         }
 
@@ -144,7 +147,9 @@ public class SemiNaiveEvaluator {
     		factList = db.edb.facts.get(body.get(bodyIndex).predicate);
     	} else if(matchCount.equals(currentBodyExpressionVariables.size())) {
     		factList = new HashMap<>();
-    		factList.put(factMatched, db.edb.facts.get(body.get(bodyIndex).predicate).get(factMatched));
+    		if(db.edb.facts.get(body.get(bodyIndex).predicate).containsKey(factMatched)) {
+    			factList.put(factMatched, db.edb.facts.get(body.get(bodyIndex).predicate).get(factMatched));
+    		}
     	} else {
     		factList = new HashMap<>();
     		HashMap<List<String>, Double> tempFactList = db.edb.facts.get(body.get(bodyIndex).predicate);
