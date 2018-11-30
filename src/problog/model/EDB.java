@@ -54,7 +54,8 @@ public class EDB {
 		facts.put(exp.predicate, factList);
 
 	}
-	
+
+	/* Add facts to the respective rule's EDB. */
 	public void addFactToRuleEDB(Expression exp, String variables) {
 		HashMap<List<String>, HashMap<String, Double>> factList = ruleFact.get(exp.predicate);
 		if (factList == null) {
