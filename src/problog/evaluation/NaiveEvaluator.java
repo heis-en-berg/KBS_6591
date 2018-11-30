@@ -9,9 +9,12 @@ import problog.model.Expression;
 
 public class NaiveEvaluator {
 
+    /* ProbLog evaluation using Naive Evaluation. */
 	public void performNaiveEvaluation(DB db) {
 		boolean isSame = false;
 		Integer numberOfIterations = 1;
+
+        /* isSame verifies if facts in temporary EDB are same as in EDB. */
 		while(!isSame) {
 			for (Expression head : db.idb.rules.keySet()) {
 				ArrayList<Expression> body = db.idb.rules.get(head);
@@ -19,6 +22,10 @@ public class NaiveEvaluator {
 				naiveEvaluator(head, body, 0, variables, db);
 			}
 			isSame = putTempEDBtoEDB(db);
+
+			/*  Continue with the naive evaluation if isSame is false.
+			    Else print the facts to the output file.
+			 */
 			if(!isSame) {
 				db.edb_temp.facts = new HashMap<>();
 			}
@@ -27,6 +34,7 @@ public class NaiveEvaluator {
 		System.out.println("Number of iterations : " + numberOfIterations);
 	}
 
+	/* Replace facts from temporary EDB to EDB. */
 	private Boolean putTempEDBtoEDB(DB db) {
 		Boolean isSame = true;
 		for (String predicate : db.edb_temp.facts.keySet()) {
@@ -41,12 +49,15 @@ public class NaiveEvaluator {
 		return isSame;
 	}
 
+	/* Derive facts for each rule till all atoms in the body are evaluated. */
 	private void naiveEvaluator(Expression head, ArrayList<Expression> body, Integer bodyIndex,
 			HashMap<String, String> variables, DB db) {
 
 		if (bodyIndex >= body.size()) {
 			return;
 		}
+
+		/* Retrieve all the facts pertaining to a rule or its atoms. */
 		HashMap<List<String>, Double> factList = getFactList(db, body, bodyIndex, variables);
 		if(factList == null) {
 			return;
@@ -89,7 +100,8 @@ public class NaiveEvaluator {
 		}
 
 	}
-	
+
+	/* Retrieving facts either partially or completely from EDB based on the variables association with the fact term..*/
 	private HashMap<List<String>, Double> getFactList(DB db, ArrayList<Expression> body, Integer bodyIndex,
 			HashMap<String, String> variables) {
     	final HashMap<List<String>, Double> factList;
@@ -134,6 +146,7 @@ public class NaiveEvaluator {
 		return factList;
 	}
 
+	/* Calculate probability using propagation as multiplication(*) and conjunction as min. */
 	private Double calculateProbability(Expression head, ArrayList<Expression> body, DB db,
 			HashMap<String, String> variables) {
 		Double minBodyProbability = 1.1;

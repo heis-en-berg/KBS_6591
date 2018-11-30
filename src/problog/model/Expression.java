@@ -2,6 +2,7 @@ package problog.model;
 
 import java.util.List;
 
+/* Basic form of an atom represented as an expression. */
 public class Expression {
 	
 	public String predicate;

@@ -6,18 +6,19 @@ import java.util.Calendar;
 
 import problog.evaluation.NaiveEvaluator;
 import problog.evaluation.SemiNaiveEvaluator;
-import problog.model.DB;
 
 public class Main {
 
 	public static void main(String[] args) {
 
+	    /* Uncomment either naiveEval or semiNaiveEval for ProbLog evaluation. */
 		Parser parser = new Parser();
 		//naiveEval(parser);
 		semiNaiveEval(parser);
 		parser.writeFile();
 	}
 
+	/* Call the naive evaluator in case of naive evaluation. Also note the time of evaluation. */
 	private static void naiveEval(Parser parser) {
 		Calendar startTime = Calendar.getInstance();
 		NaiveEvaluator naiveEvaluator = new NaiveEvaluator();
@@ -26,6 +27,7 @@ public class Main {
 		printStats(startTime, endTime, parser);
 	}
 
+    /* Call the semi-naive evaluator in case of semi-naive evaluation. Also note the time of evaluation. */
 	private static void semiNaiveEval(Parser parser) {
 		Calendar startTime = Calendar.getInstance();
 		SemiNaiveEvaluator seminaiveEvaluator = new SemiNaiveEvaluator();
@@ -34,6 +36,7 @@ public class Main {
 		printStats(startTime, endTime, parser);
 	}
 
+	/* Output the evaluation time, total number of facts derived and path of the output file. */
 	private static void printStats(Calendar startTime, Calendar endTime, Parser parser) {
 		System.out.println("Time taken: " + (endTime.getTimeInMillis() - startTime.getTimeInMillis()) + " ms");
 		System.out.println("Total Facts : " + parser.getFactCount());

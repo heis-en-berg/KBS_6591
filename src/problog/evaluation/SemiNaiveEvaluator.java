@@ -11,12 +11,20 @@ import problog.model.Expression;
 
 public class SemiNaiveEvaluator {
 
+    /* ProbLog evaluation using SemiNaive Evaluation. */
     public void performSemiNaiveEvaluation(DB db) {
+
+        /* isSame verifies if facts in each of rule EDBs are same as in EDB. Defaulting the value to false. */
     	boolean isSame = false;
     	Integer numberOfIterations = 1;
     	db.last_derived_facts.facts.putAll(db.edb.facts);
         while(!isSame) {
             int currentRuleNumber = 0;
+
+            /*  Pass head, body of rules, body atom count(bodyIndex), variables,
+                number of rule getting processed and edb, idb as db as
+                arguments to semiNaiveEvaluator.
+             */
             for (Expression head : db.idb.rules.keySet()) {
             	for(String lastFactPredicate : db.last_derived_facts.facts.keySet()) {
             		for(List<String> lastDerivedFact : db.last_derived_facts.facts.get(lastFactPredicate).keySet()) {
@@ -30,6 +38,8 @@ public class SemiNaiveEvaluator {
                 		}
             		}
             	}
+
+            	/* Increment the ruleNumber after evaluating a rule. */
                 currentRuleNumber++;
             }
             isSame = putTempEDBtoEDB(db);
@@ -43,6 +53,9 @@ public class SemiNaiveEvaluator {
         System.out.println("Number of iterations : " + numberOfIterations);
     }
 
+    /* Move the variables with the last fact variables from last_derived_facts
+       to currentBodyExpressionTerms.
+     */
     private void fillVariablesWithLastFact(List<String> currentBodyExpressionTerms, List<String> lastDerivedFact,
 			HashMap<String, String> variables) {
 		for(int i = 0; i < currentBodyExpressionTerms.size(); i++) {
@@ -51,6 +64,7 @@ public class SemiNaiveEvaluator {
 		
 	}
 
+    /* Replace facts from temporary EDB to EDB. */
 	private  Boolean putTempEDBtoEDB(DB db) {
         Boolean isSame = true;
         for (String predicate : db.edb_temp.facts.keySet()) {
@@ -75,12 +89,15 @@ public class SemiNaiveEvaluator {
         return isSame;
     }
 
+    /* Derive facts for each rule till all atoms in the body are evaluated. */
     private void semiNaiveEvaluator(Expression head, ArrayList<Expression> body, Integer bodyIndex,
                                 HashMap<String, String> variables, DB db, int currentRuleNumber) {
 
         if (bodyIndex >= body.size()) {
             return;
         }
+
+        /* Retrieve all the facts pertaining to a rule or its atoms. */
         HashMap<List<String>, Double> factList = getFactList(db, body, bodyIndex, variables);
         if(factList == null) {
             return;
@@ -129,6 +146,7 @@ public class SemiNaiveEvaluator {
 
     }
 
+    /* Retrieving facts either partially or completely from EDB based on the variables association with the fact term..*/
     private HashMap<List<String>, Double> getFactList(DB db, ArrayList<Expression> body, Integer bodyIndex,
 			HashMap<String, String> variables) {
     	final HashMap<List<String>, Double> factList;
@@ -173,6 +191,7 @@ public class SemiNaiveEvaluator {
 		return factList;
 	}
 
+    /* Calculate probability using propagation as multiplication(*) and conjunction as min. */
 	private Double calculateProbability(Expression head, ArrayList<Expression> body, DB db,
                                         HashMap<String, String> variables) {
         Double minBodyProbability = 1.1;

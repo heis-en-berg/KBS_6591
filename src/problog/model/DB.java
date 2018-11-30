@@ -2,6 +2,9 @@ package problog.model;
 
 import java.util.ArrayList;
 
+/* DB class includes rules, facts from IDB, EDB.
+   last_derived_facts, ruleFacts used for semi-naive evaluation.
+ */
 public class DB {
 
     public EDB edb;

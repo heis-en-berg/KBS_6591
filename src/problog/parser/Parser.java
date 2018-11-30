@@ -132,7 +132,8 @@ public class Parser {
             e.printStackTrace();
         }
     }
-    
+
+    /* Output the fact results to a file.*/
     public void writeFile() {
     	File file = new File(filePath);
     	File outputFile = new File(this.outPutFilePath);
@@ -160,7 +161,8 @@ public class Parser {
 			e1.printStackTrace();
 		}
     }
-    
+
+    /* Total number of facts derived from the naive or semi-naive evaluator. */
     public Integer getFactCount() {
     	Integer factCount = 0;
     	for (String predicate : db.edb.facts.keySet()) {
