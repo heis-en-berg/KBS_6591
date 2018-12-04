@@ -20,7 +20,6 @@ public class Parser {
     public String outPutFilePath;
     public Parser(){
         db = new DB();
-        readFile();
     }
     /* Method to add rules to DB. */
     public void  addRule(String rule){
@@ -93,10 +92,6 @@ public class Parser {
     public void readFile() {
 
         /* Read clauses from file. */
-        Scanner consoleScanner = new Scanner(System.in);
-        System.out.print("Enter file path: ");
-        this.filePath = consoleScanner.nextLine();
-        consoleScanner.close();
         File file = new File(filePath);
         this.outPutFilePath = file.getParent() + "/output.pl";
 

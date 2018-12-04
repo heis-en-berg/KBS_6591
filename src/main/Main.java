@@ -3,6 +3,7 @@ package main;
 import problog.parser.Parser;
 
 import java.util.Calendar;
+import java.util.Scanner;
 
 import problog.evaluation.NaiveEvaluator;
 import problog.evaluation.SemiNaiveEvaluator;
@@ -11,10 +12,21 @@ public class Main {
 
 	public static void main(String[] args) {
 
-	    /* Uncomment either naiveEval or semiNaiveEval for ProbLog evaluation. */
+		final Scanner sc = new Scanner(System.in);
+		System.out.print("Enter 1 for Naive Evaluation, 2 for Semi-Naive : ");
+		Integer choice = sc.nextInt();
 		Parser parser = new Parser();
-		//naiveEval(parser);
-		semiNaiveEval(parser);
+		System.out.print("Enter file path: ");
+		sc.nextLine();
+        parser.filePath = sc.nextLine();
+		parser.readFile();
+		sc.close();
+		if(choice.equals("1")) {
+			naiveEval(parser);
+		} else {
+			semiNaiveEval(parser);
+		}
+		
 		parser.writeFile();
 	}
 
