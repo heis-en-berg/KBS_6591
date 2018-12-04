@@ -21,7 +21,7 @@ public class Main {
         parser.filePath = sc.nextLine();
 		parser.readFile();
 		sc.close();
-		if(choice.equals("1")) {
+		if(choice == 1) {
 			naiveEval(parser);
 		} else {
 			semiNaiveEval(parser);
