@@ -9,6 +9,12 @@ import problog.evaluation.NaiveEvaluator;
 import problog.evaluation.SemiNaiveEvaluator;
 
 public class Main {
+	
+	private static final long MEGABYTE = 1024L * 1024L;
+
+	  public static long bytesToMegabytes(long bytes) {
+	    return bytes / MEGABYTE;
+	  }
 
 	public static void main(String[] args) {
 
@@ -26,11 +32,10 @@ public class Main {
 		} else {
 			semiNaiveEval(parser);
 		}
-		
 		parser.writeFile();
 	}
 
-	/* Call the naive evaluator in case of naive evaluation. Also note the time of evaluation. */
+	/* Call to naive evaluator. */
 	private static void naiveEval(Parser parser) {
 		Calendar startTime = Calendar.getInstance();
 		NaiveEvaluator naiveEvaluator = new NaiveEvaluator();
@@ -39,7 +44,7 @@ public class Main {
 		printStats(startTime, endTime, parser);
 	}
 
-    /* Call the semi-naive evaluator in case of semi-naive evaluation. Also note the time of evaluation. */
+    /* Call to semi-naive evaluator. */
 	private static void semiNaiveEval(Parser parser) {
 		Calendar startTime = Calendar.getInstance();
 		SemiNaiveEvaluator seminaiveEvaluator = new SemiNaiveEvaluator();
@@ -48,11 +53,22 @@ public class Main {
 		printStats(startTime, endTime, parser);
 	}
 
-	/* Output the evaluation time, total number of facts derived and path of the output file. */
+	/* Output evaluation stats */
 	private static void printStats(Calendar startTime, Calendar endTime, Parser parser) {
 		System.out.println("Time taken: " + (endTime.getTimeInMillis() - startTime.getTimeInMillis()) + " ms");
 		System.out.println("Total Facts : " + parser.getFactCount());
+		//printMemoryConsumption();
 		System.out.println("Output file : " + parser.outPutFilePath);
+	}
+	
+	private static void printMemoryConsumption() {
+		Runtime runtime = Runtime.getRuntime();
+	    // Run the garbage collector
+	    runtime.gc();
+	    // Calculate the used memory
+	    long memory = runtime.totalMemory() - runtime.freeMemory();
+	    System.out.println("Used memory : "
+	            + bytesToMegabytes(memory) + " MB");
 	}
 
 }
