@@ -120,7 +120,7 @@ public class NaiveEvaluator {
     		factList = db.edb.facts.get(body.get(bodyIndex).predicate);
     	} else if(matchCount.equals(currentBodyExpressionVariables.size())) {
     		factList = new HashMap<>();
-    		if(db.edb.facts.get(body.get(bodyIndex).predicate).containsKey(factMatched)) {
+    		if(db.edb.facts.containsKey(body.get(bodyIndex).predicate) && db.edb.facts.get(body.get(bodyIndex).predicate).containsKey(factMatched)) {
     			factList.put(factMatched, db.edb.facts.get(body.get(bodyIndex).predicate).get(factMatched));
     		}
     	} else {

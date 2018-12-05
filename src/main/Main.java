@@ -57,7 +57,7 @@ public class Main {
 	private static void printStats(Calendar startTime, Calendar endTime, Parser parser) {
 		System.out.println("Time taken: " + (endTime.getTimeInMillis() - startTime.getTimeInMillis()) + " ms");
 		System.out.println("Total Facts : " + parser.getFactCount());
-		//printMemoryConsumption();
+		printMemoryConsumption();
 		System.out.println("Output file : " + parser.outPutFilePath);
 	}
 	
