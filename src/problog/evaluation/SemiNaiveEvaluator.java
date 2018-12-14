@@ -195,7 +195,7 @@ public class SemiNaiveEvaluator {
     /* Calculate probability using propagation as multiplication(*) and conjunction as min. */
 	private Double calculateProbability(Expression head, ArrayList<Expression> body, DB db,
                                         HashMap<String, String> variables) {
-        Double minBodyProbability = 1.1;
+        Double minBodyProbability = 1.0;
         for (Expression bodyElement : body) {
             List<String> terms = bodyElement.terms;
             List<String> termsValues = new ArrayList<>();
