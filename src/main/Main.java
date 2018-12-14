@@ -19,12 +19,10 @@ public class Main {
 	public static void main(String[] args) {
 
 		final Scanner sc = new Scanner(System.in);
-		System.out.print("Enter 1 for Naive Evaluation, 2 for Semi-Naive : ");
-		Integer choice = sc.nextInt();
+		Integer choice = getEngineType(sc);
 		Parser parser = new Parser();
-		System.out.print("Enter file path: ");
-		sc.nextLine();
-        parser.filePath = sc.nextLine();
+		parser.db.disjunctionFunctionType = getDisjunctionFunctionType(sc);
+		parser.filePath = getFilePath(sc);
 		parser.readFile();
 		sc.close();
 		if(choice == 1) {
@@ -33,6 +31,33 @@ public class Main {
 			semiNaiveEval(parser);
 		}
 		parser.writeFile();
+	}
+
+	private static String getFilePath(Scanner sc) {
+		System.out.print("Enter file path: ");
+		sc.nextLine();
+        String filePath = sc.nextLine();
+        return filePath;
+	}
+
+	private static Integer getDisjunctionFunctionType(Scanner sc) {
+		System.out.print("Enter Disjunction Function Type(1 for ind, 2 for max) : ");
+		Integer choice = sc.nextInt();
+		if(!choice.equals(1) && !choice.equals(2)) {
+			System.out.println("Wrong Input");
+			choice = getDisjunctionFunctionType(sc);
+		}
+		return choice;
+	}
+
+	private static Integer getEngineType(Scanner sc) {
+		System.out.print("Enter 1 for Naive Evaluation, 2 for Semi-Naive : ");
+		Integer choice = sc.nextInt();
+		if(!choice.equals(1) && !choice.equals(2)) {
+			System.out.println("Wrong Input");
+			choice = getEngineType(sc);
+		}
+		return choice;
 	}
 
 	/* Call to naive evaluator. */

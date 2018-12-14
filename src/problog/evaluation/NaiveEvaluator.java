@@ -88,7 +88,7 @@ public class NaiveEvaluator {
 						if (newFact.size() == head.terms.size()) {
 							Double probability = calculateProbability(head, body, db, oldPlusNewVariables);
 							Expression newFactExp = new Expression(head.predicate, newFact, probability);
-							db.edb_temp.addFactToTempEDB(newFactExp);
+							db.edb_temp.addFactToTempEDB(newFactExp, db.disjunctionFunctionType);
 						}
 
 					} else {

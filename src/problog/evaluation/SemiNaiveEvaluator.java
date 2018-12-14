@@ -75,7 +75,11 @@ public class SemiNaiveEvaluator {
             		if(ruleEDB.ruleFact.containsKey(predicate) && ruleEDB.ruleFact.get(predicate).containsKey(newFact)) {
             			Collection<Double> fromFactProbs = ruleEDB.ruleFact.get(predicate).get(newFact).values();
             			for(Double prob : fromFactProbs) {
-            				probability = probability + prob - (probability * prob);
+            				if(db.disjunctionFunctionType.equals(1)) {
+            					probability = probability + prob - (probability * prob);
+            				} else {
+            					probability = Math.max(probability, prob);
+            				}
             			}
             		}
             	}
@@ -133,7 +137,7 @@ public class SemiNaiveEvaluator {
                             }
                             EDB ruleEDB = db.ruleFacts.get(currentRuleNumber);
                             ruleEDB.addFactToRuleEDB(newFactExp, variables.toString());
-                            db.edb_temp.addFactToTempEDB(newFactExp);
+                            db.edb_temp.addFactToTempEDB(newFactExp, db.disjunctionFunctionType);
                         }
 
                     } else {

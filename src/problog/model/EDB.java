@@ -1,6 +1,5 @@
 package problog.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,8 +36,7 @@ public class EDB {
 	/*
 	 * Adds a new fact to temp EDB.
 	 */
-	public void addFactToTempEDB(Expression exp) {
-		List<String> terms = new ArrayList<>();
+	public void addFactToTempEDB(Expression exp, Integer disjunctionFunctionType) {
 		HashMap<List<String>, Double> factList = facts.get(exp.predicate);
 		if (factList == null) {
 			factList = new HashMap<List<String>, Double>();
@@ -46,7 +44,12 @@ public class EDB {
 		if(factList.containsKey(exp.terms)) {
 			Double oldProb = factList.get(exp.terms);
 			factList.remove(exp.terms);
-			Double newProb = oldProb + exp.probability - (oldProb * exp.probability);
+			Double newProb = 0.0;
+			if(disjunctionFunctionType.equals(1)) {
+				newProb = oldProb + exp.probability - (oldProb * exp.probability);
+			} else if(disjunctionFunctionType.equals(2)) {
+				newProb = Math.max(oldProb, exp.probability);
+			}
 			factList.put(exp.terms, newProb);
 		} else {
 			factList.put(exp.terms, exp.probability);

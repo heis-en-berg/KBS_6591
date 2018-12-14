@@ -12,6 +12,7 @@ public class DB {
     public EDB edb_temp;
     public EDB last_derived_facts;
     public ArrayList<EDB> ruleFacts;
+    public Integer disjunctionFunctionType = 1;
 
     public DB(){
         edb = new EDB();
